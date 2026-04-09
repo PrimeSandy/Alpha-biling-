@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 import '../models/bill_item.dart';
 
@@ -11,7 +13,9 @@ class ClaudeService {
   static const _apiUrl = 'https://api.anthropic.com/v1/messages';
 
   Future<List<BillItem>> scanBill(File imageFile) async {
-    final apiKey = dotenv.env['ANTHROPIC_API_KEY'] ?? '';
+    final prefs = await SharedPreferences.getInstance();
+    final apiKey = prefs.getString('ANTHROPIC_API_KEY') ?? dotenv.env['ANTHROPIC_API_KEY'] ?? '';
+
     final compressedBytes = await FlutterImageCompress.compressWithFile(
       imageFile.path,
       minWidth: 1080,

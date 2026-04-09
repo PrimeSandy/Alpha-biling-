@@ -8,6 +8,8 @@ import 'screens/assign_screen.dart';
 import 'screens/pay_screen.dart';
 import 'screens/people_screen.dart';
 import 'screens/scan_screen.dart';
+import 'screens/settings_screen.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,6 +83,8 @@ class BillSplitApp extends StatelessWidget {
           PeopleScreen.routeName: (_) => const PeopleScreen(),
           AssignScreen.routeName: (_) => const AssignScreen(),
           PayScreen.routeName: (_) => const PayScreen(),
+          SettingsScreen.routeName: (_) => const SettingsScreen(),
+
         },
       ),
     );

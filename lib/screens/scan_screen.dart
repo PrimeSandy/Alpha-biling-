@@ -7,8 +7,13 @@ import 'package:provider/provider.dart';
 import '../models/bill_item.dart';
 import '../providers/bill_provider.dart';
 import '../services/claude_service.dart';
+import '../services/gemini_service.dart';
 import '../widgets/step_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'people_screen.dart';
+import 'settings_screen.dart';
+
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -23,6 +28,8 @@ class _ScanScreenState extends State<ScanScreen> {
   final _priceController = TextEditingController();
   final _picker = ImagePicker();
   final _claudeService = ClaudeService();
+  final _geminiService = GeminiService();
+
   File? _pickedImage;
   bool _loading = false;
 
@@ -58,11 +65,18 @@ class _ScanScreenState extends State<ScanScreen> {
     if (_pickedImage == null) return;
     setState(() => _loading = true);
     try {
-      final items = await _claudeService.scanBill(_pickedImage!);
+      final prefs = await SharedPreferences.getInstance();
+      final providerType = prefs.getString('PREFERRED_AI') ?? 'claude';
+      
+      final items = providerType == 'claude' 
+          ? await _claudeService.scanBill(_pickedImage!)
+          : await _geminiService.scanBill(_pickedImage!);
+          
       for (final item in items) {
         provider.addItem(item);
       }
     } catch (e) {
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Scan failed: $e')),
@@ -89,6 +103,11 @@ class _ScanScreenState extends State<ScanScreen> {
                           onPressed: provider.resetAll,
                           icon: const Icon(Icons.refresh),
                         ),
+                      IconButton(
+                        onPressed: () => Navigator.pushNamed(context, SettingsScreen.routeName),
+                        icon: const Icon(Icons.settings),
+                      ),
+
                     ],
                   ),
                   SliverToBoxAdapter(
@@ -161,6 +180,15 @@ class _ScanScreenState extends State<ScanScreen> {
                   () => _pick(ImageSource.gallery),
                 ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _actionButton(
+                  'Manual',
+                  Icons.edit_note,
+                  () => _showManualEntryDialog(provider),
+                ),
+              ),
+
             ],
           ),
         ],
@@ -294,4 +322,50 @@ class _ScanScreenState extends State<ScanScreen> {
       ),
     );
   }
+
+  void _showManualEntryDialog(BillProvider provider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Item Manually'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Item Name',
+                hintText: 'e.g. Chicken Biriyani',
+              ),
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _priceController,
+              decoration: const InputDecoration(
+                labelText: 'Price',
+                hintText: 'e.g. 180',
+                prefixText: '₹ ',
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _manualAdd(provider);
+              Navigator.pop(context);
+            },
+            child: const Text('Add Item'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
