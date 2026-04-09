@@ -115,7 +115,8 @@ class _ScanScreenState extends State<ScanScreen> {
                           children: [
                             const StepIndicator(current: 1),
                             const SizedBox(height: 32),
-                            _buildHeroCard(),
+                            _buildHeroCard(provider),
+
                             const SizedBox(height: 24),
                             if (_pickedImage != null) _buildImagePreview(provider),
                             if (provider.items.isNotEmpty) _buildItemsList(provider),
@@ -135,7 +136,8 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  Widget _buildHeroCard() {
+  Widget _buildHeroCard(BillProvider provider) {
+
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
