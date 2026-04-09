@@ -6,9 +6,9 @@ import 'package:provider/provider.dart';
 
 import '../models/bill_item.dart';
 import '../providers/bill_provider.dart';
-import '../services/claude_service.dart';
-import '../services/gemini_service.dart';
+import '../services/ai_service.dart';
 import '../widgets/step_indicator.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'people_screen.dart';
@@ -27,10 +27,9 @@ class _ScanScreenState extends State<ScanScreen> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   final _picker = ImagePicker();
-  final _claudeService = ClaudeService();
-  final _geminiService = GeminiService();
-
+  final _aiService = AIService();
   File? _pickedImage;
+
   bool _loading = false;
 
   @override
@@ -65,17 +64,13 @@ class _ScanScreenState extends State<ScanScreen> {
     if (_pickedImage == null) return;
     setState(() => _loading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final providerType = prefs.getString('PREFERRED_AI') ?? 'claude';
-      
-      final items = providerType == 'claude' 
-          ? await _claudeService.scanBill(_pickedImage!)
-          : await _geminiService.scanBill(_pickedImage!);
+      final items = await _aiService.scanBill(_pickedImage!);
           
       for (final item in items) {
         provider.addItem(item);
       }
     } catch (e) {
+
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
