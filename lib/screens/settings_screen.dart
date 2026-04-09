@@ -13,7 +13,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _claudeController = TextEditingController();
   final _geminiController = TextEditingController();
   bool _isLoading = true;
-  String _selectedProvider = 'claude';
+   String _selectedProvider = 'claude';
+   bool _obscureClaude = true;
+   bool _obscureGemini = true;
+
 
 
   @override
@@ -84,22 +87,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   TextField(
                     controller: _claudeController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Claude (Anthropic) API Key',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.key),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.key),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscureClaude ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () => setState(() => _obscureClaude = !_obscureClaude),
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureClaude,
+
                   ),
                   const SizedBox(height: 24),
                   TextField(
                     controller: _geminiController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Gemini (Google) API Key',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.key),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.key),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscureGemini ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () => setState(() => _obscureGemini = !_obscureGemini),
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: _obscureGemini,
+
                   ),
                   const Spacer(),
                   ElevatedButton(

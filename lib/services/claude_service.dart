@@ -30,7 +30,8 @@ class ClaudeService {
     final base64Image = base64Encode(safeBytes);
 
     final body = jsonEncode({
-      "model": "claude-sonnet-4-20250514",
+      "model": "claude-3-sonnet-20240229",
+
       "max_tokens": 1000,
       "messages": [
         {

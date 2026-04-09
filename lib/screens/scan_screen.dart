@@ -70,13 +70,16 @@ class _ScanScreenState extends State<ScanScreen> {
         provider.addItem(item);
       }
     } catch (e) {
-
-
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Scan failed: $e')),
-      );
+      if (e.toString().contains('Key is missing')) {
+        _showKeyError();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Scan failed: $e')),
+        );
+      }
     } finally {
+
       if (mounted) setState(() => _loading = false);
     }
   }
@@ -359,6 +362,27 @@ class _ScanScreenState extends State<ScanScreen> {
               Navigator.pop(context);
             },
             child: const Text('Add Item'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showKeyError() {
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('API Key Missing'),
+        content: const Text('You need an API key to use the AI scanning feature. Please add one in Settings.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, SettingsScreen.routeName);
+            },
+            child: const Text('Go to Settings'),
           ),
         ],
       ),
